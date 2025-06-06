@@ -131,6 +131,28 @@ job_postings_db = {
 }
 next_job_id = 2 # Since we added job 1
 
+# News Items Data Model
+news_items_db = {
+    1: {
+        "news_id": 1, # Explicitly adding for clarity, matches key
+        "title": "Global Economic Outlook Brightens Slightly, Says Report",
+        "source_name": "World Finance Monitor",
+        "publication_date_str": "2023-10-25", # User input string for original pub date
+        "summary": "A recent report from the World Finance Monitor indicates a slight improvement in the global economic outlook for the upcoming quarter, though significant regional disparities remain. Key factors include stabilizing energy prices and resilient consumer demand in several major economies.",
+        "link_to_article": "http://example.com/news/global-outlook-oct23",
+        "posted_by_user_id": 1, # Placeholder
+        "date_posted_on_site": datetime.datetime.now() - datetime.timedelta(hours=10), # When it was added to this site
+        "comments": [
+            {
+                "author_name": "EconAnalyst",
+                "text": "Interesting take, but I think the regional disparities are more concerning than the report suggests.",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(hours=5)
+            }
+        ]
+    }
+}
+next_news_id = 2 # Since we added news_id 1
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -576,6 +598,74 @@ def add_job_comment(job_id):
     job_postings_db[job_id]['comments'].append(new_comment)
 
     return redirect(url_for('view_job_detail', job_id=job_id))
+
+# News Item Routes
+@app.route('/news')
+def view_news_list():
+    # Sorting is handled in the template
+    return render_template('news_list.html', news_items=news_items_db)
+
+@app.route('/news/post', methods=['GET', 'POST'])
+def post_new_news_item():
+    global next_news_id
+    if request.method == 'POST':
+        title = request.form.get('title')
+        source_name = request.form.get('source_name')
+        publication_date_str = request.form.get('publication_date_str', '') # Optional
+        summary = request.form.get('summary')
+        link_to_article = request.form.get('link_to_article', '') # Optional
+
+        if not all([title, source_name, summary]):
+            abort(400, description="Title, source name, and summary are required.")
+
+        current_news_id = next_news_id
+        new_item = {
+            "news_id": current_news_id,
+            "title": title,
+            "source_name": source_name,
+            "publication_date_str": publication_date_str if publication_date_str else "N/A",
+            "summary": summary,
+            "link_to_article": link_to_article if link_to_article else "",
+            "posted_by_user_id": 1,  # Placeholder
+            "date_posted_on_site": datetime.datetime.now(),
+            "comments": []
+        }
+        news_items_db[current_news_id] = new_item
+        next_news_id += 1
+
+        # Assuming 'view_news_detail' will be the function name for the news detail page
+        return redirect(url_for('view_news_detail', news_id=current_news_id))
+
+    return render_template('post_news_item.html')
+
+@app.route('/news/<int:news_id>')
+def view_news_detail(news_id):
+    item_data = news_items_db.get(news_id)
+    if not item_data:
+        abort(404)
+    return render_template('news_detail.html', news_item=item_data, news_id=news_id)
+
+@app.route('/news/<int:news_id>/add_comment', methods=['POST'])
+def add_news_comment(news_id):
+    item_data = news_items_db.get(news_id)
+    if not item_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    news_items_db[news_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_news_detail', news_id=news_id))
 
 @app.route('/offline')
 def offline_page():

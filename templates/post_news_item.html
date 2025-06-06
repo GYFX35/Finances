@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Post New News Item - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Share a New News Item</h1>
+    <form method="POST" action="{{ url_for('post_new_news_item') }}">
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="source_name">Source Name (e.g., News Outlet, Your Blog):</label>
+            <input type="text" id="source_name" name="source_name" required>
+        </div>
+        <div>
+            <label for="publication_date_str">Original Publication Date (e.g., YYYY-MM-DD):</label>
+            <input type="text" id="publication_date_str" name="publication_date_str" placeholder="YYYY-MM-DD">
+        </div>
+        <div>
+            <label for="summary">Summary/Content:</label>
+            <textarea id="summary" name="summary" rows="10" required></textarea>
+        </div>
+        <div>
+            <label for="link_to_article">Link to Full Article (optional):</label>
+            <input type="url" id="link_to_article" name="link_to_article" placeholder="https://example.com/article">
+        </div>
+        <div>
+            <button type="submit">Post News Item</button>
+        </div>
+    </form>
+{% endblock %}

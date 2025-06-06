@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}World Economy News - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>World Economy News & Articles</h1>
+    <p><a href="{{ url_for('post_new_news_item') }}">Post New News Item</a></p>
+
+    {% if news_items %}
+        <ul>
+            {# Sort by date_posted_on_site descending #}
+            {% for news_id, item_data in news_items.items()|sort(attribute='1.date_posted_on_site', reverse=True) %}
+                <li>
+                    <h3><a href="{{ url_for('view_news_detail', news_id=news_id) }}">{{ item_data.title }}</a></h3>
+                    <p>
+                        <strong>Source:</strong> {{ item_data.source_name }}
+                        {% if item_data.publication_date_str and item_data.publication_date_str != 'N/A' %}
+                            | <strong>Published:</strong> {{ item_data.publication_date_str }}
+                        {% endif %}
+                    </p>
+                    <p>{{ item_data.summary[:200] }}{% if item_data.summary|length > 200 %}...{% endif %}</p> {# Summary snippet #}
+                    <p><small>Shared on: {{ item_data.date_posted_on_site.strftime('%Y-%m-%d %H:%M') }}</small></p>
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No news items posted yet. Be the first to share something!</p>
+    {% endif %}
+{% endblock %}
