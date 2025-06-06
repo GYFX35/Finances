@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Create Business Profile - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Create New Business Profile</h1>
+    <form method="POST" action="{{ url_for('create_business') }}">
+        <div>
+            <label for="name">Business Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        <div>
+            <label for="industry">Industry:</label>
+            <input type="text" id="industry" name="industry">
+        </div>
+        <div>
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location">
+        </div>
+        <div>
+            <label for="contact_email">Contact Email:</label>
+            <input type="email" id="contact_email" name="contact_email">
+        </div>
+        <div>
+            <label for="website_url">Website URL:</label>
+            <input type="url" id="website_url" name="website_url" placeholder="https://example.com">
+        </div>
+        <div>
+            <button type="submit">Create Business Profile</button>
+        </div>
+    </form>
+{% endblock %}

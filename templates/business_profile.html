@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if business %}
+        {{ business.name }} - Business Profile
+    {% else %}
+        Business Not Found
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if business %}
+        <h1>{{ business.name }}</h1>
+        <p><strong>Description:</strong> {{ business.description }}</p>
+        <p><strong>Industry:</strong> {{ business.industry if business.industry else 'N/A' }}</p>
+        <p><strong>Location:</strong> {{ business.location if business.location else 'N/A' }}</p>
+        <p><strong>Contact Email:</strong> {{ business.contact_email if business.contact_email else 'N/A' }}</p>
+        <p><strong>Website:</strong>
+            {% if business.website_url %}
+                <a href="{{ business.website_url }}" target="_blank">{{ business.website_url }}</a>
+            {% else %}
+                N/A
+            {% endif %}
+        </p>
+        <p><small>Submitted by User ID: {{ business.submitted_by_user_id }}</small></p>
+
+        <hr>
+        <h2>Comments</h2>
+        {% if business.comments %}
+            <ul>
+                {% for comment in business.comments %}
+                    <li><strong>{{ comment.author_name }}:</strong> {{ comment.text }}</li>
+                {% else %}
+                    <p>No comments yet. Be the first to comment!</p>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments yet. Be the first to comment!</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_comment_to_business', business_id=business.business_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Business Profile Not Found</h1>
+        <p>The business profile you are looking for does not exist.</p>
+    {% endif %}
+    <p><a href="{{ url_for('hello_world') }}">Home</a> | <a href="{{ url_for('create_business') }}">Create another Business</a></p>
+{% endblock %}
