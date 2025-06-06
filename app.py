@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, abort
+import datetime
 
 app = Flask(__name__)
 
@@ -26,6 +27,23 @@ business_profiles_db = {
     }
 }
 next_business_id = 2 # Since we added business 1
+
+marketing_forum_threads_db = {
+    1: {
+        "title": "Welcome to the Marketing Forum!",
+        "initial_post_content": "This is the first thread. Let's discuss amazing marketing strategies!",
+        "author_name": "AdminUser", # Could be linked to a user_id if users are submitting threads
+        "created_at": datetime.datetime.now(),
+        "replies": [
+            {
+                "reply_author_name": "Commenter1",
+                "reply_content": "Great to be here! Looking forward to discussions.",
+                "replied_at": datetime.datetime.now() - datetime.timedelta(minutes=30) # Sample time
+            }
+        ]
+    }
+}
+next_marketing_thread_id = 2 # Since we added thread 1
 
 @app.route('/')
 def hello_world():
@@ -116,6 +134,72 @@ def add_comment_to_business(business_id):
     })
 
     return redirect(url_for('view_business_profile', business_id=business_id))
+
+# Marketing Forum Routes
+@app.route('/marketing-forum')
+def view_marketing_forum():
+    # Sorting will be handled in the template for simplicity here
+    return render_template('marketing_forum.html', threads=marketing_forum_threads_db)
+
+@app.route('/marketing-forum/new', methods=['GET', 'POST'])
+def create_marketing_thread():
+    global next_marketing_thread_id
+    if request.method == 'POST':
+        author_name = request.form.get('author_name')
+        title = request.form.get('title')
+        initial_post_content = request.form.get('initial_post_content')
+
+        if not author_name or not title or not initial_post_content:
+            # Handle error: all fields are required
+            # For simplicity, aborting, but a redirect with flash message would be better
+            abort(400, description="Author name, title, and content are required.")
+
+        current_thread_id = next_marketing_thread_id
+
+        new_thread = {
+            "title": title,
+            "initial_post_content": initial_post_content,
+            "author_name": author_name,
+            "created_at": datetime.datetime.now(),
+            "replies": []
+        }
+        marketing_forum_threads_db[current_thread_id] = new_thread
+        next_marketing_thread_id += 1
+
+        # Assuming 'view_marketing_thread_and_replies' will be the function name for the thread detail page
+        return redirect(url_for('view_marketing_thread_and_replies', thread_id=current_thread_id))
+
+    return render_template('create_marketing_thread.html')
+
+@app.route('/marketing-forum/thread/<int:thread_id>')
+def view_marketing_thread_and_replies(thread_id):
+    thread_data = marketing_forum_threads_db.get(thread_id)
+    if not thread_data:
+        abort(404)
+    return render_template('view_marketing_thread.html', thread=thread_data, thread_id=thread_id)
+
+@app.route('/marketing-forum/thread/<int:thread_id>/add_reply', methods=['POST'])
+def add_marketing_reply(thread_id):
+    thread_data = marketing_forum_threads_db.get(thread_id)
+    if not thread_data:
+        abort(404)
+
+    reply_author_name = request.form.get('reply_author_name')
+    reply_content = request.form.get('reply_content')
+
+    if not reply_author_name or not reply_content:
+        # For simplicity, aborting, but a redirect with flash message would be better
+        abort(400, description="Author name and reply content are required.")
+
+    new_reply = {
+        "reply_author_name": reply_author_name,
+        "reply_content": reply_content,
+        "replied_at": datetime.datetime.now()
+    }
+
+    marketing_forum_threads_db[thread_id]['replies'].append(new_reply)
+
+    return redirect(url_for('view_marketing_thread_and_replies', thread_id=thread_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

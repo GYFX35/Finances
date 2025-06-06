@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Marketing Thread - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Create New Marketing Thread</h1>
+    <form method="POST" action="{{ url_for('create_marketing_thread') }}">
+        <div>
+            <label for="author_name">Your Name:</label>
+            <input type="text" id="author_name" name="author_name" required>
+        </div>
+        <div>
+            <label for="title">Thread Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="initial_post_content">Your Post:</label>
+            <textarea id="initial_post_content" name="initial_post_content" rows="5" required></textarea>
+        </div>
+        <div>
+            <button type="submit">Create Thread</button>
+        </div>
+    </form>
+{% endblock %}

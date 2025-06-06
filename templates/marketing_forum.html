@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Marketing Forum - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Marketing Forum</h1>
+    <p><a href="{{ url_for('create_marketing_thread') }}">Create New Thread</a></p>
+
+    {% if threads %}
+        <ul>
+            {% for thread_id, thread_data in threads.items()|sort(attribute='1.created_at', reverse=True) %}
+                <li>
+                    <h3><a href="{{ url_for('view_marketing_thread_and_replies', thread_id=thread_id) }}">{{ thread_data.title }}</a></h3>
+                    <p>
+                        Started by: {{ thread_data.author_name }} on {{ thread_data.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        | Replies: {{ thread_data.replies|length }}
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No threads yet. Be the first to start a discussion!</p>
+    {% endif %}
+{% endblock %}
