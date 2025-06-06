@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ job.title if job else 'Job Not Found' }} - Job Details
+{% endblock %}
+
+{% block content %}
+    {% if job %}
+        <h1>{{ job.title }}</h1>
+        <p><strong>Company:</strong> {{ job.company_name }}</p>
+        <p><strong>Location:</strong> {{ job.location }}</p>
+        <p><strong>Posted on:</strong> {{ job.date_posted.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if job.employment_type %}<p><strong>Employment Type:</strong> {{ job.employment_type }}</p>{% endif %}
+        {% if job.salary_range and job.salary_range != 'N/A' %}<p><strong>Salary:</strong> {{ job.salary_range }}</p>{% endif %}
+
+        <h2>Job Description</h2>
+        <p>{{ job.description|replace('\n', '<br>')|safe }}</p> {# Render newlines from textarea as <br> #}
+
+        {% if job.responsibilities %}
+            <h2>Responsibilities</h2>
+            <p>{{ job.responsibilities|replace('\n', '<br>')|safe }}</p>
+        {% endif %}
+
+        {% if job.qualifications %}
+            <h2>Qualifications</h2>
+            <p>{{ job.qualifications|replace('\n', '<br>')|safe }}</p>
+        {% endif %}
+
+        <h2>How to Apply</h2>
+        <p>{{ job.how_to_apply|safe }}</p> {# Use safe if it might contain email links or URLs directly #}
+
+        <hr>
+        <h2>Comments & Questions</h2>
+        {% if job.comments %}
+            <ul>
+                {% for comment in job.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|replace('\n', '<br>')|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments or questions yet. Be the first!</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment or Question</h3>
+        <form method="POST" action="{{ url_for('add_job_comment', job_id=job_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment/Question:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Job Not Found</h1>
+        <p>The job posting you are looking for does not exist.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_jobs_list') }}">Back to Job Listings</a></p>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Job Listings - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Current Job Openings</h1>
+    <p><a href="{{ url_for('post_new_job') }}">Post New Job</a></p>
+
+    {% if jobs %}
+        <ul>
+            {# Sort by date_posted descending #}
+            {% for job_id, job_data in jobs.items()|sort(attribute='1.date_posted', reverse=True) %}
+                <li>
+                    <h3><a href="{{ url_for('view_job_detail', job_id=job_id) }}">{{ job_data.title }}</a></h3>
+                    <p><strong>Company:</strong> {{ job_data.company_name }}</p>
+                    <p><strong>Location:</strong> {{ job_data.location }}</p>
+                    <p><strong>Posted:</strong> {{ job_data.date_posted.strftime('%Y-%m-%d') }}</p>
+                    {% if job_data.employment_type %}<p><strong>Type:</strong> {{ job_data.employment_type }}</p>{% endif %}
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No job openings posted yet. Check back soon or post a new job!</p>
+    {% endif %}
+{% endblock %}

@@ -105,6 +105,32 @@ fintech_tools_db = {
 }
 next_fintech_tool_id = 2
 
+# Job Postings Data Model
+job_postings_db = {
+    1: {
+        "job_id": 1, # Explicitly adding for clarity, matches key
+        "title": "Software Engineer, Backend",
+        "company_name": "Tech Solutions Inc.",
+        "location": "San Francisco, CA or Remote",
+        "description": "Join our dynamic team to build next-generation web applications. We are looking for a skilled backend engineer passionate about technology.",
+        "responsibilities": "- Design and implement scalable backend services.\n- Collaborate with frontend developers and product managers.\n- Write clean, maintainable, and testable code.",
+        "qualifications": "- Bachelor's degree in Computer Science or related field.\n- 3+ years of experience in backend development.\n- Proficiency in Python and Django/Flask.",
+        "employment_type": "Full-time",
+        "how_to_apply": "Email your resume to careers@techsolutions.example.com",
+        "salary_range": "$120,000 - $150,000 per year",
+        "date_posted": datetime.datetime.now() - datetime.timedelta(days=2),
+        "posted_by_user_id": 1, # Placeholder
+        "comments": [
+            {
+                "author_name": "CandidateQuery",
+                "text": "Is remote work open to international applicants?",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(days=1)
+            }
+        ]
+    }
+}
+next_job_id = 2 # Since we added job 1
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -474,6 +500,82 @@ def add_fintech_tool_comment(tool_id):
     fintech_tools_db[tool_id]['comments'].append(new_comment)
 
     return redirect(url_for('view_fintech_tool_detail', tool_id=tool_id))
+
+# Job Postings Routes
+@app.route('/jobs')
+def view_jobs_list():
+    # Sorting is handled in the template
+    return render_template('jobs_list.html', jobs=job_postings_db)
+
+@app.route('/jobs/post', methods=['GET', 'POST'])
+def post_new_job():
+    global next_job_id
+    if request.method == 'POST':
+        title = request.form.get('title')
+        company_name = request.form.get('company_name')
+        location = request.form.get('location')
+        description = request.form.get('description')
+        responsibilities = request.form.get('responsibilities', '')
+        qualifications = request.form.get('qualifications', '')
+        employment_type = request.form.get('employment_type', '')
+        how_to_apply = request.form.get('how_to_apply')
+        salary_range = request.form.get('salary_range', '')
+
+        if not all([title, company_name, location, description, how_to_apply]):
+            abort(400, description="Required fields are missing (Title, Company, Location, Description, How to Apply).")
+
+        current_job_id = next_job_id
+        new_job = {
+            "job_id": current_job_id,
+            "title": title,
+            "company_name": company_name,
+            "location": location,
+            "description": description,
+            "responsibilities": responsibilities,
+            "qualifications": qualifications,
+            "employment_type": employment_type,
+            "how_to_apply": how_to_apply,
+            "salary_range": salary_range if salary_range else "N/A",
+            "date_posted": datetime.datetime.now(),
+            "posted_by_user_id": 1,  # Placeholder
+            "comments": []
+        }
+        job_postings_db[current_job_id] = new_job
+        next_job_id += 1
+
+        # Assuming 'view_job_detail' will be the function name for the job detail page
+        return redirect(url_for('view_job_detail', job_id=current_job_id))
+
+    return render_template('post_job.html')
+
+@app.route('/job/<int:job_id>')
+def view_job_detail(job_id):
+    job_data = job_postings_db.get(job_id)
+    if not job_data:
+        abort(404)
+    return render_template('job_detail.html', job=job_data, job_id=job_id)
+
+@app.route('/job/<int:job_id>/add_comment', methods=['POST'])
+def add_job_comment(job_id):
+    job_data = job_postings_db.get(job_id)
+    if not job_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    job_postings_db[job_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_job_detail', job_id=job_id))
 
 @app.route('/offline')
 def offline_page():

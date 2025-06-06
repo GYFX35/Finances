@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Post New Job - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Post a New Job Opening</h1>
+    <form method="POST" action="{{ url_for('post_new_job') }}">
+        <div>
+            <label for="title">Job Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="company_name">Company Name:</label>
+            <input type="text" id="company_name" name="company_name" required>
+        </div>
+        <div>
+            <label for="location">Location (e.g., City, State or Remote):</label>
+            <input type="text" id="location" name="location" required>
+        </div>
+        <div>
+            <label for="description">Job Description:</label>
+            <textarea id="description" name="description" rows="5" required></textarea>
+        </div>
+        <div>
+            <label for="responsibilities">Key Responsibilities (one per line):</label>
+            <textarea id="responsibilities" name="responsibilities" rows="5"></textarea>
+        </div>
+        <div>
+            <label for="qualifications">Required Qualifications (one per line):</label>
+            <textarea id="qualifications" name="qualifications" rows="5"></textarea>
+        </div>
+        <div>
+            <label for="employment_type">Employment Type (e.g., Full-time, Part-time, Contract):</label>
+            <input type="text" id="employment_type" name="employment_type">
+        </div>
+        <div>
+            <label for="how_to_apply">How to Apply (e.g., email address or application link):</label>
+            <input type="text" id="how_to_apply" name="how_to_apply" required>
+        </div>
+        <div>
+            <label for="salary_range">Salary Range (optional, e.g., $X - $Y per year):</label>
+            <input type="text" id="salary_range" name="salary_range">
+        </div>
+        <div>
+            <button type="submit">Post Job</button>
+        </div>
+    </form>
+{% endblock %}
