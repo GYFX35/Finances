@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Global Chat - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Global Chat Room</h1>
+
+    <div class="chat-form-container">
+        <h2>Post a New Message</h2>
+        <form method="POST" action="{{ url_for('global_chat_page') }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="message_text">Message:</label>
+                <textarea id="message_text" name="message_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Send Message</button>
+            </div>
+        </form>
+    </div>
+
+    <hr>
+
+    <div class="chat-messages-container">
+        <h2>Messages</h2>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>
+                        <p>
+                            <strong>{{ message.author_name }}</strong>
+                            <em>({{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }})</em>:
+                        </p>
+                        <p>{{ message.message_text|replace('\n', '<br>')|safe }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No messages yet. Be the first to say something!</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -153,6 +153,25 @@ news_items_db = {
 }
 next_news_id = 2 # Since we added news_id 1
 
+# Global Chat Messages Data Model
+chat_messages_db = [
+    {
+        "author_name": "Alice",
+        "message_text": "Hello everyone! Welcome to the chat.",
+        "timestamp": datetime.datetime.now() - datetime.timedelta(minutes=10)
+    },
+    {
+        "author_name": "Bob",
+        "message_text": "Hi Alice! Glad to be here.",
+        "timestamp": datetime.datetime.now() - datetime.timedelta(minutes=5)
+    },
+    {
+        "author_name": "Charlie",
+        "message_text": "What's the topic of discussion today?",
+        "timestamp": datetime.datetime.now() - datetime.timedelta(minutes=1)
+    }
+]
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -666,6 +685,31 @@ def add_news_comment(news_id):
     news_items_db[news_id]['comments'].append(new_comment)
 
     return redirect(url_for('view_news_detail', news_id=news_id))
+
+# Global Chat Page Route
+@app.route('/chat', methods=['GET', 'POST'])
+def global_chat_page():
+    if request.method == 'POST':
+        author_name = request.form.get('author_name')
+        message_text = request.form.get('message_text')
+
+        if not author_name or not author_name.strip() or \
+           not message_text or not message_text.strip():
+            # In a real app, might flash a message instead of aborting
+            abort(400, description="Author name and message text cannot be empty.")
+
+        new_message = {
+            "author_name": author_name,
+            "message_text": message_text,
+            "timestamp": datetime.datetime.now()
+        }
+        chat_messages_db.append(new_message)
+        return redirect(url_for('global_chat_page'))
+
+    # GET request: Display messages
+    # Sort messages by timestamp, newest first for display
+    sorted_messages = sorted(chat_messages_db, key=lambda x: x['timestamp'], reverse=True)
+    return render_template('chat_page.html', messages=sorted_messages)
 
 @app.route('/offline')
 def offline_page():
