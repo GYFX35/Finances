@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Offline - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>You are Offline</h1>
+    <p>It seems you've lost your internet connection. This page is limited because you are offline.</p>
+    <p>Please check your connection and try again.</p>
+    {# You could add a link to the home page, which might work if cached by the service worker #}
+    <p><a href="{{ url_for('hello_world') }}">Try Home Page</a></p>
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, send_from_directory
 import datetime
 
 app = Flask(__name__)
@@ -200,6 +200,14 @@ def add_marketing_reply(thread_id):
     marketing_forum_threads_db[thread_id]['replies'].append(new_reply)
 
     return redirect(url_for('view_marketing_thread_and_replies', thread_id=thread_id))
+
+@app.route('/offline')
+def offline_page():
+    return render_template('offline.html')
+
+@app.route('/sw.js')
+def service_worker_route(): # Renamed function to avoid conflict if 'service_worker' is used elsewhere
+    return send_from_directory(app.root_path, 'sw.js', mimetype='application/javascript')
 
 if __name__ == '__main__':
     app.run(debug=True)
