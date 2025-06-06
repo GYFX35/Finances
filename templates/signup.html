@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Create Your Profile</h1>
+    <form method="POST" action="{{ url_for('signup') }}">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="display_name">Display Name:</label>
+            <input type="text" id="display_name" name="display_name" required>
+        </div>
+        <div>
+            <label for="bio">Bio:</label>
+            <textarea id="bio" name="bio"></textarea>
+        </div>
+        <div>
+            <button type="submit">Create Profile</button>
+        </div>
+    </form>
+{% endblock %}
