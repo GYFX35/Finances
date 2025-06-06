@@ -45,6 +45,28 @@ marketing_forum_threads_db = {
 }
 next_marketing_thread_id = 2 # Since we added thread 1
 
+sales_transactions_db = {
+    1: {
+        "date": datetime.datetime.now() - datetime.timedelta(days=1), # Sample: yesterday
+        "product_description": "Super Widget - Model X",
+        "quantity": 2,
+        "unit_price": 25.00,
+        "total_amount": 50.00,
+        "customer_info": "Customer Alpha",
+        "payment_method": "Credit Card",
+        "status": "Completed", # Options: "Completed", "Pending", "Refunded"
+        "recorded_by_user_id": 1, # Placeholder
+        "comments": [
+            {
+                "author_name": "SupportTeam",
+                "text": "Order processed and shipped.",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(hours=23)
+            }
+        ]
+    }
+}
+next_sales_transaction_id = 2 # Since we added transaction 1
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -200,6 +222,88 @@ def add_marketing_reply(thread_id):
     marketing_forum_threads_db[thread_id]['replies'].append(new_reply)
 
     return redirect(url_for('view_marketing_thread_and_replies', thread_id=thread_id))
+
+# Sales Transactions Routes
+@app.route('/sales')
+def view_sales_list():
+    # Sorting is handled in the template
+    return render_template('sales_list.html', sales=sales_transactions_db)
+
+@app.route('/sales/new', methods=['GET', 'POST'])
+def log_new_sale():
+    global next_sales_transaction_id
+    if request.method == 'POST':
+        product_description = request.form.get('product_description')
+        quantity_str = request.form.get('quantity')
+        unit_price_str = request.form.get('unit_price')
+        customer_info = request.form.get('customer_info', '') # Optional
+        payment_method = request.form.get('payment_method', '') # Optional
+        status = request.form.get('status', 'Pending') # Default to Pending
+
+        if not product_description or not quantity_str or not unit_price_str:
+            abort(400, description="Product description, quantity, and unit price are required.")
+
+        try:
+            quantity = float(quantity_str)
+            unit_price = float(unit_price_str)
+        except ValueError:
+            abort(400, description="Quantity and unit price must be valid numbers.")
+
+        if quantity <= 0 or unit_price < 0: # Unit price can be 0 for free items, quantity must be > 0
+            abort(400, description="Quantity must be positive and unit price must be non-negative.")
+
+        total_amount = quantity * unit_price
+        current_transaction_id = next_sales_transaction_id
+
+        new_sale = {
+            "transaction_id": current_transaction_id, # Explicitly adding transaction_id
+            "date": datetime.datetime.now(),
+            "product_description": product_description,
+            "quantity": quantity,
+            "unit_price": unit_price,
+            "total_amount": total_amount,
+            "customer_info": customer_info,
+            "payment_method": payment_method,
+            "status": status,
+            "recorded_by_user_id": 1,  # Placeholder user ID
+            "comments": []
+        }
+        sales_transactions_db[current_transaction_id] = new_sale
+        next_sales_transaction_id += 1
+
+        # Assuming 'view_sale_detail' will be the function name for the transaction detail page
+        return redirect(url_for('view_sale_detail', transaction_id=current_transaction_id))
+
+    return render_template('log_sale.html')
+
+@app.route('/sale/<int:transaction_id>')
+def view_sale_detail(transaction_id):
+    transaction_data = sales_transactions_db.get(transaction_id)
+    if not transaction_data:
+        abort(404)
+    return render_template('sale_detail.html', transaction=transaction_data, transaction_id=transaction_id)
+
+@app.route('/sale/<int:transaction_id>/add_comment', methods=['POST'])
+def add_sale_comment(transaction_id):
+    transaction_data = sales_transactions_db.get(transaction_id)
+    if not transaction_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    sales_transactions_db[transaction_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_sale_detail', transaction_id=transaction_id))
 
 @app.route('/offline')
 def offline_page():

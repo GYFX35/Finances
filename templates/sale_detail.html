@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Sale Details: {{ transaction.product_description[:30] if transaction else 'Sale Not Found' }}
+{% endblock %}
+
+{% block content %}
+    {% if transaction %}
+        <h1>Sale Transaction Details</h1>
+        <p><strong>Transaction ID:</strong> {{ transaction_id }}</p>
+        <p><strong>Date:</strong> {{ transaction.date.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p><strong>Product/Service:</strong> {{ transaction.product_description }}</p>
+        <p><strong>Quantity:</strong> {{ transaction.quantity }}</p>
+        <p><strong>Unit Price:</strong> {{ "%.2f"|format(transaction.unit_price) }}</p>
+        <p><strong>Total Amount:</strong> {{ "%.2f"|format(transaction.total_amount) }}</p>
+        <p><strong>Customer:</strong> {{ transaction.customer_info if transaction.customer_info else 'N/A' }}</p>
+        <p><strong>Payment Method:</strong> {{ transaction.payment_method if transaction.payment_method else 'N/A' }}</p>
+        <p><strong>Status:</strong> {{ transaction.status }}</p>
+        <p><small>Recorded by User ID: {{ transaction.recorded_by_user_id }}</small></p>
+
+        <hr>
+        <h2>Comments</h2>
+        {% if transaction.comments %}
+            <ul>
+                {% for comment in transaction.comments|sort(attribute='timestamp') %} {# Sort comments by time ascending #}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|safe }}</div> {# Assuming comment text might be simple HTML #}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments on this transaction yet.</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_sale_comment', transaction_id=transaction_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Sale Transaction Not Found</h1>
+        <p>The sale you are looking for does not exist.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_sales_list') }}">Back to Sales List</a></p>
+{% endblock %}

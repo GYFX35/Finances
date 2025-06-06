@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Log New Sale - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Log New Sales Transaction</h1>
+    <form method="POST" action="{{ url_for('log_new_sale') }}">
+        <div>
+            <label for="product_description">Product/Service Description:</label>
+            <textarea id="product_description" name="product_description" rows="3" required></textarea>
+        </div>
+        <div>
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" step="any" required> {# step="any" for float, or "1" for int #}
+        </div>
+        <div>
+            <label for="unit_price">Unit Price:</label>
+            <input type="number" id="unit_price" name="unit_price" step="0.01" required>
+        </div>
+        <div>
+            <label for="customer_info">Customer Information:</label>
+            <input type="text" id="customer_info" name="customer_info">
+        </div>
+        <div>
+            <label for="payment_method">Payment Method:</label>
+            <input type="text" id="payment_method" name="payment_method">
+        </div>
+        <div>
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="Pending">Pending</option>
+                <option value="Completed" selected>Completed</option>
+                <option value="Refunded">Refunded</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Log Sale</button>
+        </div>
+    </form>
+{% endblock %}

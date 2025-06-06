@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Sales Transactions - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Sales Transactions</h1>
+    <p><a href="{{ url_for('log_new_sale') }}">Log New Sale</a></p>
+
+    {% if sales %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Product/Service</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Customer</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# Sort by date descending: items() gives list of (key, value) pairs. Sort by value's 'date' field. #}
+                {% for transaction_id, sale_data in sales.items()|sort(attribute='1.date', reverse=True) %}
+                    <tr>
+                        <td>{{ sale_data.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ sale_data.product_description }}</td>
+                        <td>{{ "%.2f"|format(sale_data.total_amount) }}</td> {# Format to 2 decimal places #}
+                        <td>{{ sale_data.status }}</td>
+                        <td>{{ sale_data.customer_info if sale_data.customer_info else 'N/A' }}</td>
+                        <td><a href="{{ url_for('view_sale_detail', transaction_id=transaction_id) }}">View Details</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No sales transactions logged yet.</p>
+    {% endif %}
+{% endblock %}
