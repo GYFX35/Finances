@@ -67,6 +67,44 @@ sales_transactions_db = {
 }
 next_sales_transaction_id = 2 # Since we added transaction 1
 
+# Banks Data Model
+banks_db = {
+    1: {
+        "name": "Global Trust Bank",
+        "description": "A leading international bank providing comprehensive financial services.",
+        "website_url": "http://examplebank.com",
+        "hq_location": "New York, USA",
+        "services": ["Retail Banking", "Wealth Management", "Corporate Loans"],
+        "comments": [
+            {
+                "author_name": "User123",
+                "text": "Great customer service!",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(days=5)
+            }
+        ]
+    }
+}
+next_bank_id = 2
+
+# Fintech Tools Data Model
+fintech_tools_db = {
+    1: {
+        "name": "BudgetMaster Pro",
+        "description": "An intuitive app for personal and family budget management.",
+        "website_url": "http://budgetmasterpro.com",
+        "category": "Budgeting",
+        "pricing_model": "Freemium", # e.g., Free, Subscription, One-time, Freemium
+        "comments": [
+            {
+                "author_name": "Budgeteer22",
+                "text": "Helped me save so much money!",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(days=3)
+            }
+        ]
+    }
+}
+next_fintech_tool_id = 2
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -304,6 +342,138 @@ def add_sale_comment(transaction_id):
     sales_transactions_db[transaction_id]['comments'].append(new_comment)
 
     return redirect(url_for('view_sale_detail', transaction_id=transaction_id))
+
+# Banks Directory Routes
+@app.route('/banks')
+def view_banks_list():
+    return render_template('banks_list.html', banks=banks_db)
+
+@app.route('/banks/new', methods=['GET', 'POST'])
+def add_new_bank():
+    global next_bank_id
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description', '')
+        website_url = request.form.get('website_url', '')
+        hq_location = request.form.get('hq_location', '')
+        services_str = request.form.get('services', '')
+
+        if not name:
+            abort(400, description="Bank name is required.")
+
+        services_list = [s.strip() for s in services_str.split(',') if s.strip()] if services_str else []
+
+        current_id = next_bank_id
+        new_bank = {
+            "bank_id": current_id, # Explicitly adding bank_id
+            "name": name,
+            "description": description,
+            "website_url": website_url,
+            "hq_location": hq_location,
+            "services": services_list,
+            "comments": []
+        }
+        banks_db[current_id] = new_bank
+        next_bank_id += 1
+
+        # Assuming 'view_bank_detail' will be the function name for the bank detail page
+        return redirect(url_for('view_bank_detail', bank_id=current_id))
+
+    return render_template('add_bank.html')
+
+@app.route('/bank/<int:bank_id>')
+def view_bank_detail(bank_id):
+    bank_data = banks_db.get(bank_id)
+    if not bank_data:
+        abort(404)
+    return render_template('bank_detail.html', bank=bank_data, bank_id=bank_id)
+
+@app.route('/bank/<int:bank_id>/add_comment', methods=['POST'])
+def add_bank_comment(bank_id):
+    bank_data = banks_db.get(bank_id)
+    if not bank_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    banks_db[bank_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_bank_detail', bank_id=bank_id))
+
+# Fintech Tools Directory Routes
+@app.route('/fintech-tools')
+def view_fintech_tools_list():
+    return render_template('fintech_tools_list.html', fintech_tools=fintech_tools_db)
+
+@app.route('/fintech-tools/new', methods=['GET', 'POST'])
+def add_new_fintech_tool():
+    global next_fintech_tool_id
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        website_url = request.form.get('website_url', '')
+        category = request.form.get('category', '')
+        pricing_model = request.form.get('pricing_model', '')
+
+        if not name or not description:
+            abort(400, description="Tool name and description are required.")
+
+        current_id = next_fintech_tool_id
+        new_tool = {
+            "tool_id": current_id, # Explicitly adding tool_id
+            "name": name,
+            "description": description,
+            "website_url": website_url,
+            "category": category,
+            "pricing_model": pricing_model,
+            "comments": []
+        }
+        fintech_tools_db[current_id] = new_tool
+        next_fintech_tool_id += 1
+
+        # Assuming 'view_fintech_tool_detail' will be the function name for the tool detail page
+        return redirect(url_for('view_fintech_tool_detail', tool_id=current_id))
+
+    return render_template('add_fintech_tool.html')
+
+@app.route('/fintech-tool/<int:tool_id>')
+def view_fintech_tool_detail(tool_id):
+    tool_data = fintech_tools_db.get(tool_id)
+    if not tool_data:
+        abort(404)
+    return render_template('fintech_tool_detail.html', tool=tool_data, tool_id=tool_id)
+
+@app.route('/fintech-tool/<int:tool_id>/add_comment', methods=['POST'])
+def add_fintech_tool_comment(tool_id):
+    tool_data = fintech_tools_db.get(tool_id)
+    if not tool_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    fintech_tools_db[tool_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_fintech_tool_detail', tool_id=tool_id))
 
 @app.route('/offline')
 def offline_page():

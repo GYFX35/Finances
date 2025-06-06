@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Fintech Tools Directory - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Fintech Tools Directory</h1>
+    <p><a href="{{ url_for('add_new_fintech_tool') }}">Add New Fintech Tool</a></p>
+
+    {% if fintech_tools %}
+        <ul>
+            {% for tool_id, tool_data in fintech_tools.items()|sort(attribute='1.name') %} {# Sort by name #}
+                <li>
+                    <h3><a href="{{ url_for('view_fintech_tool_detail', tool_id=tool_id) }}">{{ tool_data.name }}</a></h3>
+                    {% if tool_data.website_url %}<p>Website: <a href="{{ tool_data.website_url }}" target="_blank">{{ tool_data.website_url }}</a></p>{% endif %}
+                    {% if tool_data.category %}<p>Category: {{ tool_data.category }}</p>{% endif %}
+                    {% if tool_data.pricing_model %}<p>Pricing: {{ tool_data.pricing_model }}</p>{% endif %}
+                    {% if tool_data.description %}<p>{{ tool_data.description[:150] }}{% if tool_data.description|length > 150 %}...{% endif %}</p>{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No fintech tools listed yet. Be the first to add one!</p>
+    {% endif %}
+{% endblock %}

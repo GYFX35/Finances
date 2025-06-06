@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ tool.name if tool else 'Fintech Tool Not Found' }} - Tool Details
+{% endblock %}
+
+{% block content %}
+    {% if tool %}
+        <h1>{{ tool.name }}</h1>
+        {% if tool.website_url %}<p><strong>Website:</strong> <a href="{{ tool.website_url }}" target="_blank">{{ tool.website_url }}</a></p>{% endif %}
+        {% if tool.category %}<p><strong>Category:</strong> {{ tool.category }}</p>{% endif %}
+        {% if tool.pricing_model %}<p><strong>Pricing:</strong> {{ tool.pricing_model }}</p>{% endif %}
+
+        {% if tool.description %}
+            <h2>Description</h2>
+            <p>{{ tool.description|safe }}</p>
+        {% endif %}
+
+        <hr>
+        <h2>Comments</h2>
+        {% if tool.comments %}
+            <ul>
+                {% for comment in tool.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments for this fintech tool yet.</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_fintech_tool_comment', tool_id=tool_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Fintech Tool Not Found</h1>
+        <p>The fintech tool you are looking for does not exist in our directory.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_fintech_tools_list') }}">Back to Fintech Tools Directory</a></p>
+{% endblock %}

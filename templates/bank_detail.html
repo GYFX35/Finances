@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ bank.name if bank else 'Bank Not Found' }} - Bank Details
+{% endblock %}
+
+{% block content %}
+    {% if bank %}
+        <h1>{{ bank.name }}</h1>
+        {% if bank.website_url %}<p><strong>Website:</strong> <a href="{{ bank.website_url }}" target="_blank">{{ bank.website_url }}</a></p>{% endif %}
+        {% if bank.hq_location %}<p><strong>Headquarters:</strong> {{ bank.hq_location }}</p>{% endif %}
+
+        {% if bank.description %}
+            <h2>Description</h2>
+            <p>{{ bank.description|safe }}</p>
+        {% endif %}
+
+        {% if bank.services %}
+            <h2>Services Offered</h2>
+            <ul>
+                {% for service in bank.services %}
+                    <li>{{ service }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <hr>
+        <h2>Comments</h2>
+        {% if bank.comments %}
+            <ul>
+                {% for comment in bank.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments for this bank yet.</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_bank_comment', bank_id=bank_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Bank Not Found</h1>
+        <p>The bank you are looking for does not exist in our directory.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_banks_list') }}">Back to Banks Directory</a></p>
+{% endblock %}

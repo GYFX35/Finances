@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Banks Directory - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Banks Directory</h1>
+    <p><a href="{{ url_for('add_new_bank') }}">Add New Bank</a></p>
+
+    {% if banks %}
+        <ul>
+            {% for bank_id, bank_data in banks.items()|sort(attribute='1.name') %} {# Sort by name #}
+                <li>
+                    <h3><a href="{{ url_for('view_bank_detail', bank_id=bank_id) }}">{{ bank_data.name }}</a></h3>
+                    {% if bank_data.website_url %}<p>Website: <a href="{{ bank_data.website_url }}" target="_blank">{{ bank_data.website_url }}</a></p>{% endif %}
+                    {% if bank_data.hq_location %}<p>HQ: {{ bank_data.hq_location }}</p>{% endif %}
+                    {% if bank_data.description %}<p>{{ bank_data.description[:150] }}{% if bank_data.description|length > 150 %}...{% endif %}</p>{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No banks listed yet. Be the first to add one!</p>
+    {% endif %}
+{% endblock %}

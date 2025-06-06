@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Fintech Tool - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Add New Fintech Tool to Directory</h1>
+    <form method="POST" action="{{ url_for('add_new_fintech_tool') }}">
+        <div>
+            <label for="name">Tool Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div>
+            <label for="website_url">Website URL:</label>
+            <input type="url" id="website_url" name="website_url" placeholder="https://example.com">
+        </div>
+        <div>
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category" placeholder="e.g., Budgeting, Investing, Payments">
+        </div>
+        <div>
+            <label for="pricing_model">Pricing Model:</label>
+            <input type="text" id="pricing_model" name="pricing_model" placeholder="e.g., Free, Subscription, Freemium">
+        </div>
+        <div>
+            <button type="submit">Add Fintech Tool</button>
+        </div>
+    </form>
+{% endblock %}

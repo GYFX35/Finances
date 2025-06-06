@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Bank - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Add New Bank to Directory</h1>
+    <form method="POST" action="{{ url_for('add_new_bank') }}">
+        <div>
+            <label for="name">Bank Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+        <div>
+            <label for="website_url">Website URL:</label>
+            <input type="url" id="website_url" name="website_url" placeholder="https://example.com">
+        </div>
+        <div>
+            <label for="hq_location">Headquarters Location:</label>
+            <input type="text" id="hq_location" name="hq_location">
+        </div>
+        <div>
+            <label for="services">Services (comma-separated):</label>
+            <input type="text" id="services" name="services" placeholder="e.g., Retail Banking, Loans, Investments">
+        </div>
+        <div>
+            <button type="submit">Add Bank</button>
+        </div>
+    </form>
+{% endblock %}
