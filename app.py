@@ -172,6 +172,30 @@ chat_messages_db = [
     }
 ]
 
+# Esports Events Data Model
+esports_events_db = {
+    1: {
+        "event_id": 1, # Explicitly adding for clarity
+        "event_name": "Champions Tour Masters: Grand Final",
+        "game_title": "Valorant",
+        "event_datetime": datetime.datetime.now() + datetime.timedelta(days=7, hours=3), # Example: In 7 days and 3 hours
+        "tournament_name": "VCT Masters Tokyo",
+        "teams_involved": "Team Liquid vs Fnatic",
+        "stream_link": "https://twitch.tv/valorant",
+        "description": "The grand final of the Valorant Champions Tour Masters event in Tokyo.",
+        "posted_by_user_id": 1, # Placeholder
+        "date_posted_on_site": datetime.datetime.now() - datetime.timedelta(hours=2), # When it was added here
+        "comments": [
+            {
+                "author_name": "ValorantFan1",
+                "text": "This is going to be an epic match!",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(hours=1)
+            }
+        ]
+    }
+}
+next_esports_event_id = 2 # Since we added event_id 1
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -710,6 +734,82 @@ def global_chat_page():
     # Sort messages by timestamp, newest first for display
     sorted_messages = sorted(chat_messages_db, key=lambda x: x['timestamp'], reverse=True)
     return render_template('chat_page.html', messages=sorted_messages)
+
+# Esports Event Routes
+@app.route('/esports/schedule/new', methods=['GET', 'POST'])
+def post_new_esports_event():
+    global next_esports_event_id
+    if request.method == 'POST':
+        event_name = request.form.get('event_name')
+        game_title = request.form.get('game_title')
+        event_date_str = request.form.get('event_date')
+        event_time_str = request.form.get('event_time')
+        event_timezone_str = request.form.get('event_timezone', '') # Optional
+        tournament_name = request.form.get('tournament_name', '') # Optional
+        teams_involved = request.form.get('teams_involved', '') # Optional
+        stream_link = request.form.get('stream_link', '') # Optional
+        description = request.form.get('description', '') # Optional
+
+        if not all([event_name, game_title, event_date_str, event_time_str]):
+            abort(400, description="Event name, game title, event date, and event time are required.")
+
+        try:
+            full_datetime_str = f"{event_date_str} {event_time_str}"
+            event_dt_naive = datetime.datetime.strptime(full_datetime_str, '%Y-%m-%d %H:%M')
+        except ValueError:
+            abort(400, description="Invalid date or time format. Please use YYYY-MM-DD and HH:MM.")
+
+        current_event_id = next_esports_event_id
+        new_event = {
+            "event_id": current_event_id,
+            "event_name": event_name,
+            "game_title": game_title,
+            "event_datetime": event_dt_naive,
+            "event_timezone_info": event_timezone_str if event_timezone_str else "Not specified",
+            "tournament_name": tournament_name,
+            "teams_involved": teams_involved,
+            "stream_link": stream_link,
+            "description": description,
+            "posted_by_user_id": 1,  # Placeholder
+            "date_posted_on_site": datetime.datetime.now(),
+            "comments": []
+        }
+        esports_events_db[current_event_id] = new_event
+        next_esports_event_id += 1
+
+        # Assuming 'view_esports_event_detail' will be the function name
+        return redirect(url_for('view_esports_event_detail', event_id=current_event_id))
+
+    return render_template('post_esports_event.html')
+
+@app.route('/esports/event/<int:event_id>')
+def view_esports_event_detail(event_id):
+    event_data = esports_events_db.get(event_id)
+    if not event_data:
+        abort(404)
+    return render_template('esports_event_detail.html', event=event_data, event_id=event_id)
+
+@app.route('/esports/event/<int:event_id>/add_comment', methods=['POST'])
+def add_esports_event_comment(event_id):
+    event_data = esports_events_db.get(event_id)
+    if not event_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    esports_events_db[event_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_esports_event_detail', event_id=event_id))
 
 @app.route('/offline')
 def offline_page():

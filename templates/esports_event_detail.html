@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ event.event_name[:50] if event else 'Event Not Found' }} - Esports Event
+{% endblock %}
+
+{% block content %}
+    {% if event %}
+        <h1>{{ event.event_name }}</h1>
+        <p><strong>Game:</strong> {{ event.game_title }}</p>
+        <p>
+            <strong>Date & Time:</strong> {{ event.event_datetime.strftime('%Y-%m-%d %H:%M') }}
+            {% if event.event_timezone_info and event.event_timezone_info != 'Not specified' %}
+                ({{ event.event_timezone_info }})
+            {% endif %}
+        </p>
+        {% if event.tournament_name %}<p><strong>Tournament:</strong> {{ event.tournament_name }}</p>{% endif %}
+        {% if event.teams_involved %}<p><strong>Teams/Players:</strong> {{ event.teams_involved }}</p>{% endif %}
+        {% if event.stream_link %}<p><strong>Watch Live:</strong> <a href="{{ event.stream_link }}" target="_blank">{{ event.stream_link }}</a></p>{% endif %}
+
+        {% if event.description %}
+            <h2>Event Description</h2>
+            <p>{{ event.description|replace('\n', '<br>')|safe }}</p>
+        {% endif %}
+
+        <p><small>Event posted on site: {{ event.date_posted_on_site.strftime('%Y-%m-%d %H:%M') }}</small></p>
+
+        <hr>
+        <h2>Comments & Discussion</h2>
+        {% if event.comments %}
+            <ul>
+                {% for comment in event.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|replace('\n', '<br>')|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments yet. Be the first to discuss this event!</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_esports_event_comment', event_id=event_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Esports Event Not Found</h1>
+        <p>The event you are looking for does not exist in our schedule.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_esports_schedule') }}">Back to Esports Schedule</a></p>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Post New Esports Event - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Schedule a New Esports Event</h1>
+    <form method="POST" action="{{ url_for('post_new_esports_event') }}">
+        <div>
+            <label for="event_name">Event Name (e.g., Grand Final - Team A vs Team B):</label>
+            <input type="text" id="event_name" name="event_name" required>
+        </div>
+        <div>
+            <label for="game_title">Game Title (e.g., Valorant, League of Legends):</label>
+            <input type="text" id="game_title" name="game_title" required>
+        </div>
+        <div>
+            <label for="event_date">Event Date (YYYY-MM-DD):</label>
+            <input type="text" id="event_date" name="event_date" placeholder="YYYY-MM-DD" required>
+        </div>
+        <div>
+            <label for="event_time">Event Time (HH:MM, 24-hour format, e.g., 14:30):</label>
+            <input type="text" id="event_time" name="event_time" placeholder="HH:MM" required>
+        </div>
+        <div>
+            <label for="event_timezone">Event Timezone (e.g., UTC, EST, PST - optional, defaults to server interpretation):</label>
+            <input type="text" id="event_timezone" name="event_timezone" placeholder="e.g., UTC">
+        </div>
+        <div>
+            <label for="tournament_name">Tournament Name (optional):</label>
+            <input type="text" id="tournament_name" name="tournament_name">
+        </div>
+        <div>
+            <label for="teams_involved">Teams/Players Involved:</label>
+            <input type="text" id="teams_involved" name="teams_involved">
+        </div>
+        <div>
+            <label for="stream_link">Stream Link (optional URL):</label>
+            <input type="url" id="stream_link" name="stream_link" placeholder="https://twitch.tv/channel">
+        </div>
+        <div>
+            <label for="description">Description (optional):</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+        <div>
+            <button type="submit">Post Event</button>
+        </div>
+    </form>
+{% endblock %}

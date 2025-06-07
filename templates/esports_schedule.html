@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Esports Event Schedule - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Esports Event Schedule</h1>
+    <p><a href="{{ url_for('post_new_esports_event') }}">Post New Event</a></p>
+
+    {% if events %}
+        <h2>Upcoming & Recent Events</h2>
+        <ul>
+            {# Sort by event_datetime, upcoming first (which is natural sort for datetime) #}
+            {# For a more robust sort ensuring future events are always "first" then past ones descending:
+               You might need a custom sort in Python or more complex Jinja if events can be far past/future.
+               For now, simple sort by event_datetime. To make upcoming appear first if mixed with past,
+               and past ones newest first, you'd sort past descending and future ascending, then combine.
+               Let's keep it simple: sort all by event_datetime. Users can scan.
+            #}
+            {% for event_id, event_data in events.items()|sort(attribute='1.event_datetime') %}
+                <li>
+                    <h3><a href="{{ url_for('view_esports_event_detail', event_id=event_id) }}">{{ event_data.event_name }}</a></h3>
+                    <p><strong>Game:</strong> {{ event_data.game_title }}</p>
+                    <p>
+                        <strong>Date & Time:</strong> {{ event_data.event_datetime.strftime('%Y-%m-%d %H:%M') }}
+                        {% if event_data.event_timezone_info and event_data.event_timezone_info != 'Not specified' %}
+                            ({{ event_data.event_timezone_info }})
+                        {% endif %}
+                    </p>
+                    {% if event_data.teams_involved %}<p><strong>Teams/Players:</strong> {{ event_data.teams_involved }}</p>{% endif %}
+                    {% if event_data.tournament_name %}<p><strong>Tournament:</strong> {{ event_data.tournament_name }}</p>{% endif %}
+                    <p><small>Posted on site: {{ event_data.date_posted_on_site.strftime('%Y-%m-%d') }}</small></p>
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No Esports events scheduled yet. Be the first to post one!</p>
+    {% endif %}
+{% endblock %}
