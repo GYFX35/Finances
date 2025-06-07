@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ guide.title[:60] if guide else 'Guide Not Found' }} - Dropshipping Guide
+{% endblock %}
+
+{% block content %}
+    {% if guide %}
+        <h1>{{ guide.title }}</h1>
+        <p>
+            By: {{ guide.author_name }} |
+            Published: {{ guide.date_published.strftime('%Y-%m-%d') }} |
+            Last Updated: {{ guide.last_updated.strftime('%Y-%m-%d') }}
+        </p>
+
+        <hr>
+        <article class="guide-content">
+            {{ guide.content|replace('\n', '<br>')|safe }} {# Render newlines and allow basic HTML if any #}
+        </article>
+        <hr>
+
+        <h2>Comments</h2>
+        {% if guide.comments %}
+            <ul>
+                {% for comment in guide.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|replace('\n', '<br>')|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments on this guide yet. Be the first to share your thoughts!</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_guide_comment', guide_id=guide_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Guide Not Found</h1>
+        <p>The dropshipping guide you are looking for does not exist.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_guides_list') }}">Back to Dropshipping Guides</a></p>
+{% endblock %}

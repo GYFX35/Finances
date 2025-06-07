@@ -220,6 +220,26 @@ dropshipping_suppliers_db = {
 }
 next_supplier_id = 2 # Since we added supplier_id 1
 
+# Dropshipping Guides Data Model
+dropshipping_guides_db = {
+    1: {
+        "guide_id": 1, # Explicitly adding for clarity
+        "title": "Beginner's Guide to Finding Profitable Dropshipping Niches",
+        "content": "Finding a profitable niche is crucial for dropshipping success...\n\nSection 1: Understanding Niches...\nSection 2: Market Research Techniques...\nSection 3: Validating Your Niche...",
+        "author_name": "EcommercePro",
+        "date_published": datetime.datetime.now() - datetime.timedelta(days=7),
+        "last_updated": datetime.datetime.now() - datetime.timedelta(days=7),
+        "comments": [
+            {
+                "author_name": "Learner101",
+                "text": "This is super helpful, thanks for sharing!",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(days=2)
+            }
+        ]
+    }
+}
+next_guide_id = 2 # Since we added guide_id 1
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -908,6 +928,72 @@ def add_supplier_comment(supplier_id):
     dropshipping_suppliers_db[supplier_id]['comments'].append(new_comment)
 
     return redirect(url_for('view_supplier_detail', supplier_id=supplier_id))
+
+# Dropshipping Guides Routes
+@app.route('/dropshipping/guides')
+def view_guides_list():
+    # Sorting is handled in the template
+    return render_template('guides_list.html', guides=dropshipping_guides_db)
+
+@app.route('/dropshipping/guides/new', methods=['GET', 'POST'])
+def post_new_guide():
+    global next_guide_id
+    if request.method == 'POST':
+        title = request.form.get('title')
+        author_name = request.form.get('author_name')
+        content = request.form.get('content')
+
+        if not all([title, author_name, content]):
+            abort(400, description="Title, author name, and content are required.")
+
+        now = datetime.datetime.now()
+        current_guide_id = next_guide_id
+
+        new_guide = {
+            "guide_id": current_guide_id,
+            "title": title,
+            "content": content,
+            "author_name": author_name,
+            "date_published": now,
+            "last_updated": now, # Initially same as published
+            "comments": []
+        }
+        dropshipping_guides_db[current_guide_id] = new_guide
+        next_guide_id += 1
+
+        # Assuming 'view_guide_detail' will be the function name
+        return redirect(url_for('view_guide_detail', guide_id=current_guide_id))
+
+    return render_template('post_guide.html')
+
+@app.route('/dropshipping/guide/<int:guide_id>')
+def view_guide_detail(guide_id):
+    guide_data = dropshipping_guides_db.get(guide_id)
+    if not guide_data:
+        abort(404)
+    return render_template('guide_detail.html', guide=guide_data, guide_id=guide_id)
+
+@app.route('/dropshipping/guide/<int:guide_id>/add_comment', methods=['POST'])
+def add_guide_comment(guide_id):
+    guide_data = dropshipping_guides_db.get(guide_id)
+    if not guide_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    dropshipping_guides_db[guide_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_guide_detail', guide_id=guide_id))
 
 @app.route('/offline')
 def offline_page():

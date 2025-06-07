@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Dropshipping Guides - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Dropshipping Guides & Articles</h1>
+    <p><a href="{{ url_for('post_new_guide') }}">Post New Guide</a></p>
+
+    {% if guides %}
+        <ul>
+            {# Sort by date_published descending #}
+            {% for guide_id, guide_data in guides.items()|sort(attribute='1.date_published', reverse=True) %}
+                <li>
+                    <h3><a href="{{ url_for('view_guide_detail', guide_id=guide_id) }}">{{ guide_data.title }}</a></h3>
+                    <p>By: {{ guide_data.author_name }} | Published: {{ guide_data.date_published.strftime('%Y-%m-%d') }}</p>
+                    <p>{{ guide_data.content[:250] }}{% if guide_data.content|length > 250 %}... <a href="{{ url_for('view_guide_detail', guide_id=guide_id) }}">Read More</a>{% endif %}</p> {# Content snippet #}
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No dropshipping guides posted yet. Be the first to share your knowledge!</p>
+    {% endif %}
+{% endblock %}
