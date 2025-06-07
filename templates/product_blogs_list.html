@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Product Blog - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Product Blog Posts</h1>
+    <p><a href="{{ url_for('post_new_product_blog') }}">Write New Product Blog Post</a></p>
+
+    {% if posts %}
+        <ul>
+            {# Sort by date_published descending #}
+            {% for post_id, post_data in posts.items()|sort(attribute='1.date_published', reverse=True) %}
+                <li>
+                    <h3><a href="{{ url_for('view_product_blog_detail', post_id=post_id) }}">{{ post_data.title }}</a></h3>
+                    <p>By: {{ post_data.author_name }} | Published: {{ post_data.date_published.strftime('%Y-%m-%d') }}</p>
+                    {% if post_data.product_name_focus %}
+                        <p><strong>Focus Product:</strong> {{ post_data.product_name_focus }}</p>
+                    {% endif %}
+                    <p>{{ post_data.content[:250] }}{% if post_data.content|length > 250 %}... <a href="{{ url_for('view_product_blog_detail', post_id=post_id) }}">Read More</a>{% endif %}</p> {# Content snippet #}
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No product blog posts yet. Be the first to write one!</p>
+    {% endif %}
+{% endblock %}

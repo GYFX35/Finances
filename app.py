@@ -995,6 +995,74 @@ def add_guide_comment(guide_id):
 
     return redirect(url_for('view_guide_detail', guide_id=guide_id))
 
+# Product Blog Routes
+@app.route('/products/blog')
+def view_product_blogs_list():
+    # Sorting is handled in the template
+    return render_template('product_blogs_list.html', posts=product_blogs_db)
+
+@app.route('/products/blog/new', methods=['GET', 'POST'])
+def post_new_product_blog():
+    global next_product_blog_post_id
+    if request.method == 'POST':
+        title = request.form.get('title')
+        author_name = request.form.get('author_name')
+        product_name_focus = request.form.get('product_name_focus', '') # Optional
+        content = request.form.get('content')
+
+        if not all([title, author_name, content]):
+            abort(400, description="Title, author name, and content are required.")
+
+        now = datetime.datetime.now()
+        current_post_id = next_product_blog_post_id
+
+        new_post = {
+            "post_id": current_post_id,
+            "title": title,
+            "content": content,
+            "author_name": author_name,
+            "product_name_focus": product_name_focus if product_name_focus else "",
+            "date_published": now,
+            "last_updated": now, # Initially same as published
+            "comments": []
+        }
+        product_blogs_db[current_post_id] = new_post
+        next_product_blog_post_id += 1
+
+        # Assuming 'view_product_blog_detail' will be the function name
+        return redirect(url_for('view_product_blog_detail', post_id=current_post_id))
+
+    return render_template('post_product_blog.html')
+
+@app.route('/products/blog/post/<int:post_id>')
+def view_product_blog_detail(post_id):
+    post_data = product_blogs_db.get(post_id)
+    if not post_data:
+        abort(404)
+    return render_template('product_blog_detail.html', post=post_data, post_id=post_id)
+
+@app.route('/products/blog/post/<int:post_id>/add_comment', methods=['POST'])
+def add_product_blog_comment(post_id):
+    post_data = product_blogs_db.get(post_id)
+    if not post_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    product_blogs_db[post_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_product_blog_detail', post_id=post_id))
+
 @app.route('/offline')
 def offline_page():
     return render_template('offline.html')

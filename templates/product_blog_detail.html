@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ post.title[:60] if post else 'Post Not Found' }} - Product Blog
+{% endblock %}
+
+{% block content %}
+    {% if post %}
+        <h1>{{ post.title }}</h1>
+        <p>
+            By: {{ post.author_name }} |
+            Published: {{ post.date_published.strftime('%Y-%m-%d') }} |
+            Last Updated: {{ post.last_updated.strftime('%Y-%m-%d') }}
+        </p>
+        {% if post.product_name_focus %}
+            <p><strong>Product Focus:</strong> {{ post.product_name_focus }}</p>
+        {% endif %}
+
+        <hr>
+        <article class="blog-post-content">
+            {{ post.content|replace('\n', '<br>')|safe }} {# Render newlines and allow basic HTML if any #}
+        </article>
+        <hr>
+
+        <h2>Comments</h2>
+        {% if post.comments %}
+            <ul>
+                {% for comment in post.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|replace('\n', '<br>')|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments on this post yet. Be the first to share your thoughts!</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment</h3>
+        <form method="POST" action="{{ url_for('add_product_blog_comment', post_id=post_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Comment</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Product Blog Post Not Found</h1>
+        <p>The blog post you are looking for does not exist.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_product_blogs_list') }}">Back to Product Blog</a></p>
+{% endblock %}
