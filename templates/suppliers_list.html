@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Dropshipping Suppliers Directory - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Dropshipping Suppliers Directory</h1>
+    <p><a href="{{ url_for('add_new_supplier') }}">Add New Supplier</a></p>
+
+    {% if suppliers %}
+        <ul>
+            {# Sort by date_added descending #}
+            {% for supplier_id, supplier_data in suppliers.items()|sort(attribute='1.date_added', reverse=True) %}
+                <li>
+                    <h3><a href="{{ url_for('view_supplier_detail', supplier_id=supplier_id) }}">{{ supplier_data.name }}</a></h3>
+                    {% if supplier_data.website_url %}<p><strong>Website:</strong> <a href="{{ supplier_data.website_url }}" target="_blank">{{ supplier_data.website_url }}</a></p>{% endif %}
+                    {% if supplier_data.product_niches %}
+                        <p><strong>Niches:</strong> {{ supplier_data.product_niches|join(', ') }}</p>
+                    {% endif %}
+                    <p><small>Added on: {{ supplier_data.date_added.strftime('%Y-%m-%d') }}</small></p>
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No dropshipping suppliers listed yet. Be the first to add one!</p>
+    {% endif %}
+{% endblock %}

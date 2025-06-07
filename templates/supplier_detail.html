@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ supplier.name if supplier else 'Supplier Not Found' }} - Dropshipping Supplier
+{% endblock %}
+
+{% block content %}
+    {% if supplier %}
+        <h1>{{ supplier.name }}</h1>
+        {% if supplier.website_url %}<p><strong>Website:</strong> <a href="{{ supplier.website_url }}" target="_blank">{{ supplier.website_url }}</a></p>{% endif %}
+
+        <h2>Supplier Details</h2>
+        <p><strong>Description:</strong> {{ supplier.description|replace('\n', '<br>')|safe }}</p>
+        {% if supplier.product_niches %}
+            <p><strong>Product Niches:</strong> {{ supplier.product_niches|join(', ') }}</p>
+        {% endif %}
+        <p><strong>Ships From:</strong> {{ supplier.ships_from }}</p>
+        <p><strong>Ships To:</strong> {{ supplier.ships_to }}</p>
+        {% if supplier.notes %}<p><strong>Notes:</strong> {{ supplier.notes|replace('\n', '<br>')|safe }}</p>{% endif %}
+        <p><small>Added to directory on: {{ supplier.date_added.strftime('%Y-%m-%d %H:%M') }}</small></p>
+
+        <hr>
+        <h2>Comments & Reviews</h2>
+        {% if supplier.comments %}
+            <ul>
+                {% for comment in supplier.comments|sort(attribute='timestamp') %}
+                    <li>
+                        <p><strong>{{ comment.author_name }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):</p>
+                        <div>{{ comment.text|replace('\n', '<br>')|safe }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments or reviews for this supplier yet. Be the first!</p>
+        {% endif %}
+
+        <hr>
+        <h3>Leave a Comment or Review</h3>
+        <form method="POST" action="{{ url_for('add_supplier_comment', supplier_id=supplier_id) }}">
+            <div>
+                <label for="author_name">Your Name:</label>
+                <input type="text" id="author_name" name="author_name" required>
+            </div>
+            <div>
+                <label for="comment_text">Comment/Review:</label>
+                <textarea id="comment_text" name="comment_text" rows="3" required></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+
+    {% else %}
+        <h1>Supplier Not Found</h1>
+        <p>The dropshipping supplier you are looking for does not exist in our directory.</p>
+    {% endif %}
+    <p><a href="{{ url_for('view_suppliers_list') }}">Back to Suppliers List</a></p>
+{% endblock %}

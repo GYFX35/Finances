@@ -196,6 +196,30 @@ esports_events_db = {
 }
 next_esports_event_id = 2 # Since we added event_id 1
 
+# Dropshipping Suppliers Data Model
+dropshipping_suppliers_db = {
+    1: {
+        "supplier_id": 1, # Explicitly adding for clarity
+        "name": "Global Dropship Co.",
+        "website_url": "http://globaldropshipco.example.com",
+        "description": "Offers a wide range of consumer electronics and gadgets. Integrates with Shopify and WooCommerce. Ships from warehouses in Asia.",
+        "product_niches": ["Electronics", "Gadgets", "Mobile Accessories"],
+        "ships_from": "China, Vietnam",
+        "ships_to": "Worldwide",
+        "notes": "Good for starting out, wide product selection. Shipping times can vary.",
+        "added_by_user_id": 1, # Placeholder
+        "date_added": datetime.datetime.now() - datetime.timedelta(days=10),
+        "comments": [
+            {
+                "author_name": "NewbieDropshipper",
+                "text": "Has anyone used them for shipping to Europe? How are the delivery times?",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(days=1)
+            }
+        ]
+    }
+}
+next_supplier_id = 2 # Since we added supplier_id 1
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -810,6 +834,80 @@ def add_esports_event_comment(event_id):
     esports_events_db[event_id]['comments'].append(new_comment)
 
     return redirect(url_for('view_esports_event_detail', event_id=event_id))
+
+# Dropshipping Suppliers Directory Routes
+@app.route('/dropshipping/suppliers')
+def view_suppliers_list():
+    # Sorting is handled in the template
+    return render_template('suppliers_list.html', suppliers=dropshipping_suppliers_db)
+
+@app.route('/dropshipping/suppliers/new', methods=['GET', 'POST'])
+def add_new_supplier():
+    global next_supplier_id
+    if request.method == 'POST':
+        name = request.form.get('name')
+        website_url = request.form.get('website_url')
+        description = request.form.get('description')
+        product_niches_str = request.form.get('product_niches', '')
+        ships_from = request.form.get('ships_from', '')
+        ships_to = request.form.get('ships_to', '')
+        notes = request.form.get('notes', '')
+
+        if not all([name, website_url, description]):
+            abort(400, description="Supplier name, website URL, and description are required.")
+
+        product_niches_list = [n.strip() for n in product_niches_str.split(',') if n.strip()] if product_niches_str else []
+
+        current_supplier_id = next_supplier_id
+        new_supplier = {
+            "supplier_id": current_supplier_id,
+            "name": name,
+            "website_url": website_url,
+            "description": description,
+            "product_niches": product_niches_list,
+            "ships_from": ships_from if ships_from else "N/A",
+            "ships_to": ships_to if ships_to else "N/A",
+            "notes": notes,
+            "added_by_user_id": 1,  # Placeholder
+            "date_added": datetime.datetime.now(),
+            "comments": []
+        }
+        dropshipping_suppliers_db[current_supplier_id] = new_supplier
+        next_supplier_id += 1
+
+        # Assuming 'view_supplier_detail' will be the function name
+        return redirect(url_for('view_supplier_detail', supplier_id=current_supplier_id))
+
+    return render_template('add_supplier.html')
+
+@app.route('/dropshipping/supplier/<int:supplier_id>')
+def view_supplier_detail(supplier_id):
+    supplier_data = dropshipping_suppliers_db.get(supplier_id)
+    if not supplier_data:
+        abort(404)
+    return render_template('supplier_detail.html', supplier=supplier_data, supplier_id=supplier_id)
+
+@app.route('/dropshipping/supplier/<int:supplier_id>/add_comment', methods=['POST'])
+def add_supplier_comment(supplier_id):
+    supplier_data = dropshipping_suppliers_db.get(supplier_id)
+    if not supplier_data:
+        abort(404)
+
+    author_name = request.form.get('author_name')
+    comment_text = request.form.get('comment_text')
+
+    if not author_name or not comment_text:
+        abort(400, description="Author name and comment text are required.")
+
+    new_comment = {
+        "author_name": author_name,
+        "text": comment_text,
+        "timestamp": datetime.datetime.now()
+    }
+
+    dropshipping_suppliers_db[supplier_id]['comments'].append(new_comment)
+
+    return redirect(url_for('view_supplier_detail', supplier_id=supplier_id))
 
 @app.route('/offline')
 def offline_page():

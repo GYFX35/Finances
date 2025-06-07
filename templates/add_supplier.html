@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Add Dropshipping Supplier - My Social Network{% endblock %}
+
+{% block content %}
+    <h1>Add New Dropshipping Supplier</h1>
+    <form method="POST" action="{{ url_for('add_new_supplier') }}">
+        <div>
+            <label for="name">Supplier Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="website_url">Website URL:</label>
+            <input type="url" id="website_url" name="website_url" placeholder="https://example.com" required>
+        </div>
+        <div>
+            <label for="description">Description (e.g., product categories, integrations, shipping info):</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div>
+            <label for="product_niches">Product Niches/Categories (comma-separated):</label>
+            <input type="text" id="product_niches" name="product_niches" placeholder="e.g., Electronics, Fashion, Home Goods">
+        </div>
+        <div>
+            <label for="ships_from">Ships From (e.g., China, USA, Multiple):</label>
+            <input type="text" id="ships_from" name="ships_from">
+        </div>
+        <div>
+            <label for="ships_to">Ships To (e.g., Worldwide, USA & Canada):</label>
+            <input type="text" id="ships_to" name="ships_to">
+        </div>
+        <div>
+            <label for="notes">Additional Notes (optional):</label>
+            <textarea id="notes" name="notes" rows="3"></textarea>
+        </div>
+        <div>
+            <button type="submit">Add Supplier</button>
+        </div>
+    </form>
+{% endblock %}
