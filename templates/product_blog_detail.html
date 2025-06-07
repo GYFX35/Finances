@@ -16,6 +16,13 @@
             <p><strong>Product Focus:</strong> {{ post.product_name_focus }}</p>
         {% endif %}
 
+        {% if post.affiliate_link and post.affiliate_link.strip() %}
+            <p>
+                <strong>Affiliate Link:</strong>
+                <a href="{{ post.affiliate_link }}" target="_blank" rel="noopener noreferrer">{{ post.affiliate_link }}</a>
+            </p>
+        {% endif %}
+
         <hr>
         <article class="blog-post-content">
             {{ post.content|replace('\n', '<br>')|safe }} {# Render newlines and allow basic HTML if any #}

@@ -13,6 +13,13 @@
             Last Updated: {{ guide.last_updated.strftime('%Y-%m-%d') }}
         </p>
 
+        {% if guide.affiliate_link and guide.affiliate_link.strip() %}
+            <p>
+                <strong>Related Link/Offer:</strong>
+                <a href="{{ guide.affiliate_link }}" target="_blank" rel="noopener noreferrer">{{ guide.affiliate_link }}</a>
+            </p>
+        {% endif %}
+
         <hr>
         <article class="guide-content">
             {{ guide.content|replace('\n', '<br>')|safe }} {# Render newlines and allow basic HTML if any #}

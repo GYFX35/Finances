@@ -227,6 +227,7 @@ dropshipping_guides_db = {
         "title": "Beginner's Guide to Finding Profitable Dropshipping Niches",
         "content": "Finding a profitable niche is crucial for dropshipping success...\n\nSection 1: Understanding Niches...\nSection 2: Market Research Techniques...\nSection 3: Validating Your Niche...",
         "author_name": "EcommercePro",
+        "affiliate_link": "http://example.com/affiliate/dropship-guide-tool", # New field added
         "date_published": datetime.datetime.now() - datetime.timedelta(days=7),
         "last_updated": datetime.datetime.now() - datetime.timedelta(days=7),
         "comments": [
@@ -239,6 +240,28 @@ dropshipping_guides_db = {
     }
 }
 next_guide_id = 2 # Since we added guide_id 1
+
+# Product Blogs Data Model
+product_blogs_db = {
+    1: {
+        "post_id": 1, # Explicitly adding for clarity
+        "title": "In-Depth Review: The SuperWidget X2000 for Dropshippers",
+        "content": "The SuperWidget X2000 has been making waves in the dropshipping community...\n\n**Features:**\n- Feature A\n- Feature B\n\n**Pros:**\n- Pro 1\n- Pro 2\n\n**Cons:**\n- Con 1...",
+        "author_name": "GadgetGuru",
+        "product_name_focus": "SuperWidget X2000", # Optional field for the product name
+        "affiliate_link": "http://example.com/affiliate/superwidgetx2000",
+        "date_published": datetime.datetime.now() - datetime.timedelta(days=3),
+        "last_updated": datetime.datetime.now() - datetime.timedelta(days=3),
+        "comments": [
+            {
+                "author_name": "InterestedBuyer",
+                "text": "Thanks for the review! Does it integrate well with platform Y?",
+                "timestamp": datetime.datetime.now() - datetime.timedelta(days=1)
+            }
+        ]
+    }
+}
+next_product_blog_post_id = 2 # Since we added post_id 1
 
 @app.route('/')
 def hello_world():
@@ -942,6 +965,7 @@ def post_new_guide():
         title = request.form.get('title')
         author_name = request.form.get('author_name')
         content = request.form.get('content')
+        affiliate_link = request.form.get('affiliate_link', '') # Optional
 
         if not all([title, author_name, content]):
             abort(400, description="Title, author name, and content are required.")
@@ -954,6 +978,7 @@ def post_new_guide():
             "title": title,
             "content": content,
             "author_name": author_name,
+            "affiliate_link": affiliate_link if affiliate_link else "",
             "date_published": now,
             "last_updated": now, # Initially same as published
             "comments": []
@@ -1008,6 +1033,7 @@ def post_new_product_blog():
         title = request.form.get('title')
         author_name = request.form.get('author_name')
         product_name_focus = request.form.get('product_name_focus', '') # Optional
+        affiliate_link = request.form.get('affiliate_link', '') # Optional
         content = request.form.get('content')
 
         if not all([title, author_name, content]):
@@ -1022,6 +1048,7 @@ def post_new_product_blog():
             "content": content,
             "author_name": author_name,
             "product_name_focus": product_name_focus if product_name_focus else "",
+            "affiliate_link": affiliate_link if affiliate_link else "",
             "date_published": now,
             "last_updated": now, # Initially same as published
             "comments": []
