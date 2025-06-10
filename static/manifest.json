@@ -3,7 +3,9 @@
     "short_name": "MySFN",
     "description": "A platform for social and financial interactions.",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "any",
     "background_color": "#ffffff",
     "theme_color": "#007bff",
     "icons": [
