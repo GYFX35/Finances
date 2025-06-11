@@ -34,6 +34,69 @@
     {% block content %}
     {% endblock %}
 
+    <div style="padding: 10px; text-align: center;">
+        <button id="enableNotificationsButton">Enable Notifications</button>
+        <p id="notificationStatus" style="font-size: 0.9em;"></p>
+    </div>
+
+    <script>
+    const VAPID_PUBLIC_KEY = 'BPEzWZhtqV_fH_e_JTN0m_0xZgsqLqUnv1n4T0gC6Z7Fw3f_J9qY8h8L0pZ7jJ8rN6sC_xH_tK_lP9vO_lR0eDc'; // REPLACE with your actual VAPID public key
+
+    // Helper function to convert URL-safe base64 string to Uint8Array
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    const enableNotificationsButton = document.getElementById('enableNotificationsButton');
+    const notificationStatus = document.getElementById('notificationStatus');
+
+    if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
+        enableNotificationsButton.addEventListener('click', () => {
+            notificationStatus.textContent = 'Requesting permission...';
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    notificationStatus.textContent = 'Notification permission granted. Subscribing...';
+                    navigator.serviceWorker.ready.then(registration => {
+                        const subscribeOptions = {
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                        };
+                        return registration.pushManager.subscribe(subscribeOptions);
+                    })
+                    .then(pushSubscription => {
+                        console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
+                        notificationStatus.textContent = 'Successfully subscribed to push notifications!';
+                        // TODO: Send pushSubscription to your server here
+                        enableNotificationsButton.disabled = true;
+                        return pushSubscription;
+                    })
+                    .catch(error => {
+                        console.error('Failed to subscribe to push manager: ', error);
+                        notificationStatus.textContent = 'Failed to subscribe: ' + error.message;
+                    });
+                } else if (permission === 'denied') {
+                    notificationStatus.textContent = 'Notification permission denied.';
+                    enableNotificationsButton.disabled = true;
+                } else {
+                    notificationStatus.textContent = 'Notification permission not granted (dismissed).';
+                }
+            });
+        });
+    } else {
+        if(notificationStatus) notificationStatus.textContent = 'Push notifications are not supported by your browser.';
+        if(enableNotificationsButton) enableNotificationsButton.style.display = 'none';
+    }
+    </script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

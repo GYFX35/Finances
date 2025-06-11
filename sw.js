@@ -83,3 +83,36 @@ self.addEventListener('fetch', (event) => {
             })
     );
 });
+
+self.addEventListener('push', (event) => {
+    console.log('[Service Worker] Push Received.');
+    console.log(`[Service Worker] Push had this data: "${event.data ? event.data.text() : 'no payload'}"`);
+
+    let title = 'New Update!';
+    let options = {
+        body: 'You have a new message or update.',
+        icon: '/static/icons/icon-192x192.png', // Optional: path to an icon
+        badge: '/static/icons/badge-72x72.png', // Optional: path to a badge icon (often monochrome)
+        // tag: 'my-notification-tag', // Optional: notifications with same tag replace each other
+        // renotify: false, // Optional: if true, user is notified even if tag is same (sound/vibration)
+        // data: { url: '/' } // Optional: data to pass to notificationclick event
+    };
+
+    if (event.data) {
+        try {
+            const data = event.data.json(); // Try to parse as JSON
+            title = data.title || title;
+            options.body = data.body || options.body;
+            if (data.icon) options.icon = data.icon;
+            if (data.badge) options.badge = data.badge;
+            if (data.data) options.data = data.data;
+        } catch (e) {
+            // If not JSON, assume it's text
+            options.body = event.data.text();
+        }
+    }
+
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
