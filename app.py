@@ -1094,6 +1094,10 @@ def add_product_blog_comment(post_id):
 def offline_page():
     return render_template('offline.html')
 
+@app.route('/.well-known/assetlinks.json')
+def well_known_assetlinks():
+    return send_from_directory(app.static_folder, '.well-known/assetlinks.json', mimetype='application/json')
+
 @app.route('/sw.js')
 def service_worker_route(): # Renamed function to avoid conflict if 'service_worker' is used elsewhere
     return send_from_directory(app.root_path, 'sw.js', mimetype='application/javascript')
