@@ -17,8 +17,44 @@
     <button type="submit">Submit Payout</button>
   </form>
 
+  <hr>
+  <h2>Recent Transactions</h2>
+  <table id="transactions-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Amount</th>
+        <th>Recipient</th>
+        <th>Status</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
   <script>
-    document.getElementById('payout-form').addEventListener('submit', async (e) => {
+    const payoutForm = document.getElementById('payout-form');
+    const transactionsTableBody = document.querySelector('#transactions-table tbody');
+
+    async function fetchTransactions() {
+      const response = await fetch('/payouts');
+      const transactions = await response.json();
+      transactionsTableBody.innerHTML = '';
+      for (const transaction of transactions) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${transaction.id}</td>
+          <td>${transaction.amount}</td>
+          <td>${transaction.recipient}</td>
+          <td>${transaction.status}</td>
+          <td>${transaction.created_at}</td>
+        `;
+        transactionsTableBody.appendChild(row);
+      }
+    }
+
+    payoutForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const amount = document.getElementById('amount').value;
       const recipient = document.getElementById('recipient').value;
@@ -33,7 +69,10 @@
 
       const data = await response.json();
       alert(`Payout created with ID: ${data.id}`);
+      fetchTransactions();
     });
+
+    fetchTransactions();
   </script>
 </body>
 </html>
