@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payout Assistant</title>
+</head>
+<body>
+  <h1>Payout Assistant</h1>
+  <form id="payout-form">
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" required>
+    <br>
+    <label for="recipient">Recipient:</label>
+    <input type="text" id="recipient" name="recipient" required>
+    <br>
+    <button type="submit">Submit Payout</button>
+  </form>
+
+  <script>
+    document.getElementById('payout-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = document.getElementById('amount').value;
+      const recipient = document.getElementById('recipient').value;
+
+      const response = await fetch('/payouts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount, recipient }),
+      });
+
+      const data = await response.json();
+      alert(`Payout created with ID: ${data.id}`);
+    });
+  </script>
+</body>
+</html>
