@@ -6,6 +6,13 @@ const port = 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
+/**
+ * @route POST /payouts
+ * @group Payouts - Operations about payouts
+ * @param {object} req.body.required - The payout object
+ * @returns {object} 201 - The created payout object
+ * @returns {Error}  500 - An error occurred
+ */
 app.post('/payouts', (req, res) => {
   const { amount, recipient } = req.body;
   const stmt = db.prepare('INSERT INTO transactions (amount, recipient, status) VALUES (?, ?, ?)');
@@ -18,6 +25,12 @@ app.post('/payouts', (req, res) => {
   stmt.finalize();
 });
 
+/**
+ * @route GET /payouts
+ * @group Payouts - Operations about payouts
+ * @returns {Array.<object>} 200 - An array of payout objects
+ * @returns {Error}  500 - An error occurred
+ */
 app.get('/payouts', (req, res) => {
   db.all('SELECT * FROM transactions', (err, rows) => {
     if (err) {
@@ -27,6 +40,14 @@ app.get('/payouts', (req, res) => {
   });
 });
 
+/**
+ * @route GET /payouts/{id}
+ * @group Payouts - Operations about payouts
+ * @param {integer} id.path.required - The ID of the payout to retrieve
+ * @returns {object} 200 - The payout object
+ * @returns {Error}  404 - Payout not found
+ * @returns {Error}  500 - An error occurred
+ */
 app.get('/payouts/:id', (req, res) => {
   db.get('SELECT * FROM transactions WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
