@@ -8,6 +8,7 @@ db.serialize(() => {
       amount REAL,
       recipient TEXT,
       status TEXT,
+      transaction_id TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
