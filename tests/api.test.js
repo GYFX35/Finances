@@ -1,10 +1,6 @@
 const request = require('supertest');
-const express = require('express');
 const db = require('../src/database');
-
-const app = express();
-app.use(express.json());
-require('../src/index'); // This will attach the routes to the app
+const app = require('../src/index');
 
 describe('API Endpoints', () => {
   beforeAll((done) => {
@@ -20,6 +16,9 @@ describe('API Endpoints', () => {
       .send({ amount: 100, recipient: 'test' });
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('id');
+    expect(res.body.status).toEqual('completed');
+    expect(res.body).toHaveProperty('transaction_id');
+    expect(res.body.transaction_id).toMatch(/^lvuip_/);
   });
 
   it('should get a list of payouts', async () => {

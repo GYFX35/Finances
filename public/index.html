@@ -26,6 +26,7 @@
         <th>Amount</th>
         <th>Recipient</th>
         <th>Status</th>
+        <th>Transaction ID</th>
         <th>Created At</th>
       </tr>
     </thead>
@@ -48,6 +49,7 @@
           <td>${transaction.amount}</td>
           <td>${transaction.recipient}</td>
           <td>${transaction.status}</td>
+          <td>${transaction.transaction_id || '-'}</td>
           <td>${transaction.created_at}</td>
         `;
         transactionsTableBody.appendChild(row);
